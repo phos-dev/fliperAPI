@@ -3,11 +3,8 @@ const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-
-const validateEmail = email => {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
+const fetch = require('node-fetch');
+const IGDB_API_KEY = 'd0205a3f20063d4b4779d67d81a09875';
 const db = require('knex')({
     client: 'pg',
     version: '7.2',
@@ -24,12 +21,37 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+  
+const validateEmail = email => {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
 
 app.get('/', (req, res) => {
     db.select('*').from('users').then(data => {
         res.send(data);
     });
 })
+
+app.post('/search', (req, res) => {
+   
+    console.log(req.body.name); 
+    const {name} = req.body;
+    fetch("https://api-v3.igdb.com/games", 
+    {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'user-key': IGDB_API_KEY
+        },
+        body: 'fields name, involved_companies; search "'+ name +'"; limit 10;'
+    })
+    .then(response => response.json())
+    .then(data => res.status(200).json(data))
+    .catch(err => res.status(400).json('Ops... cannot search.'));
+});
+
 app.post('/login', (req, res) => {
     const {login, password} = req.body;
     const check = validateEmail(login) ? 'email' : 'username';
