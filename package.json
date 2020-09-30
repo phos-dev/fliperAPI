@@ -21,6 +21,9 @@
     "image-to-base64": "^2.1.1",
     "knex": "^0.21.5",
     "node-fetch": "^2.6.1",
+    "passport": "^0.4.1",
+    "passport-google-oauth2": "^0.2.0",
+    "passport-local": "^1.0.0",
     "pg": "^8.3.3"
   }
 }

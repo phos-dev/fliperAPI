@@ -3,11 +3,13 @@ const session = require('express-session');
 const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
 const fetch = require('node-fetch');
 const IGDB_API_KEY = 'd0205a3f20063d4b4779d67d81a09875';
 const imageToBase64 = require('image-to-base64');
+const passport = require('passport');
+const auth = require('./auth');
 let sess;
+
 const db = require('knex')({
     client: 'pg',
     version: '7.2',
@@ -19,22 +21,16 @@ const db = require('knex')({
     }
   });
 
-
 app.use(cors());
+app.use(express.static("public"));
 app.use(session({ secret: 'ssshhh',
     resave: false,
     saveUninitialized: true
 }));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
-  
+app.use(bodyParser.urlencoded({ extended: true }));
+auth(db, app);
 
-const validateEmail = email => {
-    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-}
 const isLoggedIn = id => {
     try {
         if(id != sess.user.id) {
@@ -84,29 +80,11 @@ app.post('/search', (req, res) => {
     .then(data => res.status(200).json(data))
     .catch(err => res.status(400).json('Ops... cannot search.'));
 });
-app.post('/login', (req, res) => {
-    const {login, password} = req.body;
-    const check = validateEmail(login) ? 'email' : 'username';
-    sess = req.session;
-    db.select(check, 'hash').from('login')
-        .where(check, '=', login)
-        .then(data => {
-            const match = bcrypt.compareSync(password, data[0].hash);
-            if(match) {
-                return db.select('*').from('users')
-                    .where(check, '=', login)
-                    .then(user => {
-                        res.status(200).json('LOGIN_SUCCESS');
-                        sess.user = user[0];
-                    })
-                    .catch(err => res.status(400).json('Login Failed'))
-            }
-        })
-        .catch(err => res.status(400).json('Wrong credentials'));
 
-});
+
 app.post('/add/game', (req, res) => {
     const {name, img, description} = req.body;
+    const {id} = req.session.passport.user;
     let image;
     imageToBase64(img) 
     .then(res => {
@@ -115,8 +93,8 @@ app.post('/add/game', (req, res) => {
     .catch(err => {
         console.log('rear')
     })
-    try {
-        const gE = gameExists(sess.user.id, name);
+    if(req.isAuthenticated()) {
+        const gE = gameExists(id, name);
         gE.then(data => {
             if(data.length == 0) {
                 db.transaction(trx => {
@@ -124,7 +102,7 @@ app.post('/add/game', (req, res) => {
                         name: name, 
                         image: image,
                         description: description,
-                        created_by: sess.user.id
+                        created_by: id
                     })
                     .into('games')
                     .returning('name')
@@ -139,44 +117,40 @@ app.post('/add/game', (req, res) => {
             }
         })
     }
-    catch {
+    else {
         res.status(400).json('Not logged in.');
     }
 })
-app.post('/register', (req, res) => {
-    const {name, username, email, password} = req.body;
 
-    bcrypt.hash(password, 10, function(err, hash) {
-        if(hash) {
-            db.transaction(trx => {
-                trx.insert({
-                    username : username,
-                    email: email,
-                    hash: hash
-                })
-                .into('login')
-                .returning('email')
-                .then(loginEmail => {
-                    return trx('users')
-                        .returning('*')
-                        .insert({
-                            name: name,
-                            email: loginEmail[0],
-                            joined: new Date()
-                        })
-                        .then(user => {
-                            res.status(200).json(user[0]);
-                        })
-                })
-                .then(trx.commit)
-                .catch(trx.rollback);
-            })
-            .catch(err => res.status(400).json('Unable to Register'));
+
+
+app.post('/:game_id/upvote', (req, res) => {
+    const {game_id} = req.params;
+    try {
+        if(req.isAuthenticated()) {
+            res.status(200).json(sess.user);
         }
-    });
+        else {
+            res.status(400).json('Not logged in.');
+        }
+    }
+    catch {
+
+    }
+    
+})
+app.get('/profile/:id/games', (req, res) => {
+    const {id} = req.params;
+    db.select('*').from('games')
+    .where('created_by', '=', id)
+    .then(data => {
+        res.status(200).json(data);
+    })
+    .catch(err => res.status(400));
 })
 app.get('/profile/:id', (req, res) => {
-    if(isLoggedIn(req.params.id)) {
+    
+    if(isLoggedIn(sess.user.id)) {
         res.status(200).json(sess.user);
     }
     else {

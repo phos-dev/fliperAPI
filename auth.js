@@ -1,0 +1,165 @@
+const CLIENT_ID = "721463989337-95k6qc6jl7852v5monbv2rkcr7qur704.apps.googleusercontent.com";
+const CLIENT_SECRET_KEY = "vLALNGuMYgpOOkB2EkTvbQep";
+const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
+const passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
+const bcrypt = require('bcrypt');
+
+
+module.exports = (db, app) => {
+    
+    const validateEmail = email => {
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    passport.serializeUser((user, done) => {
+        done(null, user);
+    });
+    passport.deserializeUser((user, done) => {
+        done(null, user);
+    });
+
+    passport.use(new LocalStrategy({
+        usernameField: 'login'
+    },
+        (login, password, done) => {
+            const check = validateEmail(login) ? 'email' : 'username';
+            
+            db.select(check, 'hash', 'googleaccount').from('login')
+            .where(check, '=', login)
+            .then(data => {
+                const {hash, googleaccount} = data[0];
+
+                if(googleaccount) {
+                    done(null, false, { message: 'ERROR 23'});
+                }
+                else {
+                    const match = bcrypt.compareSync(password, hash);
+                    if(match) {
+                        return db.select('*').from('users')
+                            .where(check, '=', login)
+                            .then(user => {
+
+                                done(null, user[0])
+                            })
+                            .catch(err => done(null, false))
+                    }
+                    throw new Error();
+                }
+            })
+            .catch(err => done(null, false, { message: 'Wrong Credentials.'}));
+        }
+    ));
+
+    passport.use(new GoogleStrategy({
+        clientID:     CLIENT_ID,
+        clientSecret: CLIENT_SECRET_KEY,
+        callbackURL: "http://localhost:3001/auth/google/callback"
+    },
+        (accessToken, refreshToken, profile, done) => { 
+
+            const {email, name} = profile;
+
+            db.select('email').from('users')
+            .where('email', '=', email)
+            .then(data => {
+                if(data.length == 0) {
+                    db.transaction(trx => {
+                        trx.insert({
+                            username : 'none',
+                            email: email,
+                            hash: 'none',
+                            googleaccount: true
+                        })
+                        .into('login')
+                        .returning('email')
+                        .then(loginEmail => {
+                            return trx('users')
+                                .returning('*')
+                                .insert({
+                                    name: name.givenName + ' ' + name.familyName,
+                                    email: loginEmail[0],
+                                    joined: new Date()
+                                })
+                        })
+                        .then(trx.commit)
+                        .catch(trx.rollback);
+                    });
+                }
+            })
+            .catch(err => {});
+            return done(null, profile);
+        }
+    ));
+
+    app.get('/auth/google', passport.authenticate('google', { scope: 
+        [ 'https://www.googleapis.com/auth/userinfo.profile',
+        , 'https://www.googleapis.com/auth/userinfo.email' ] }
+    ));
+
+    app.get('/auth/google/callback', passport.authenticate('google'),
+        function(req, res) {
+        res.status(200).json('LOGIN_SUCCESS');
+    });
+
+    app.post('/login', (req, res, next ) => {
+        passport.authenticate('local', (err, user, info) => {
+            if (err) return next(err);
+            if (!user) {
+                if(info.message === 'ERROR 23') {
+                    return res.redirect('http://localhost:3001/auth/google');
+                }
+                else {
+                    return res.status(404).json(info.message);
+                }
+            }
+            req.logIn(user, (err) => {
+                if (err) { return next(err); }
+                return res.status(200).json('LOGIN_SUCCESS');
+            });
+        })(req, res, next)
+    });
+    app.post('/register', (req, res) => {
+        const {name, username, email, password} = req.body;
+
+        isEmailReg(email).then(data => {
+            if(data.length == 0 && gmailRegex.test(String(email).toLowerCase())) {
+                res.redirect('http://localhost:3001/auth/google');
+            }
+        });
+
+        bcrypt.hash(password, 10, function(err, hash) {
+            if(hash) {
+                db.transaction(trx => {
+                    trx.insert({
+                        username : username,
+                        email: email,
+                        hash: hash
+                    })
+                    .into('login')
+                    .returning('email')
+                    .then(loginEmail => {
+                        return trx('users')
+                            .returning('*')
+                            .insert({
+                                name: name,
+                                email: loginEmail[0],
+                                joined: new Date()
+                            })
+                            .then(user => {
+                                res.status(200).json(user[0]);
+                            })
+                    })
+                    .then(trx.commit)
+                    .catch(trx.rollback);
+                })
+                .catch(err => res.status(400).json('Unable to Register'));
+            }
+        });
+    })
+}
+
+
