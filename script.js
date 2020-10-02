@@ -126,19 +126,37 @@ app.post('/add/game', (req, res) => {
 
 app.post('/:game_id/upvote', (req, res) => {
     const {game_id} = req.params;
-    try {
-        if(req.isAuthenticated()) {
-            res.status(200).json(sess.user);
-        }
-        else {
-            res.status(400).json('Not logged in.');
-        }
-    }
-    catch {
 
+    if(req.isAuthenticated()) {
+        db('games').increment('votes').where('id',game_id)
+        .then(data => {
+            if(data === 1) res.status(200).json("Upvoted successfully!");
+            else throw new Error();
+        })
+        .catch(err => res.status(400).json("Ops... you cannot upvote this game."));
+        
     }
-    
+    else {
+        res.status(400).json('Not logged in.');
+    }
 })
+app.post('/:game_id/downvote', (req, res) => {
+    const {game_id} = req.params;
+
+    if(req.isAuthenticated()) {
+        db('games').decrement('votes').where('id',game_id)
+        .then(data => {
+            if(data === 1) res.status(200).json("Downvoted successfully!");
+            else throw new Error();
+        })
+        .catch(err => res.status(400).json("Ops... you cannot downvote this game."));
+        
+    }
+    else {
+        res.status(400).json('Not logged in.');
+    }
+})
+
 app.get('/profile/:id/games', (req, res) => {
     const {id} = req.params;
     db.select('*').from('games')
@@ -149,9 +167,10 @@ app.get('/profile/:id/games', (req, res) => {
     .catch(err => res.status(400));
 })
 app.get('/profile/:id', (req, res) => {
+    const {id} = req.params;
     
-    if(isLoggedIn(sess.user.id)) {
-        res.status(200).json(sess.user);
+    if(req.isAuthenticated() && req.session.passport.user.id === parseInt(id)) {
+        res.status(200).json(req.session.passport.user);
     }
     else {
         res.status(400).json('Not logged in.');
