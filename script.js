@@ -58,13 +58,14 @@ const gameExists = (userId, name) => {
     return exists;
 }
 
-
-app.get('/', (req, res) => {
-    db.select('*').from('users').then(data => {
-        res.json(data);
-    });
+app.get('/:page/:gamesperpage', (req, res) => {
+    const {page, gamesperpage} = req.params;
+    db('games').select('*').limit(gamesperpage).offset(page - 1)
+    .then(data => {
+        res.status(200).json(data);
+    })
+    .catch(err => res.status(400).json('Ops... error with the database connection.'))
 })
-
 app.post('/search', (req, res) => {
     const {name} = req.body;
     const query = name.replace(/['"]+/g, '').split(/[ ,]+/).join(' | ');
@@ -169,6 +170,7 @@ app.get('/profile/:id/games', (req, res) => {
     })
     .catch(err => res.status(400));
 })
+
 app.get('/profile/:id', (req, res) => {
     const {id} = req.params;
     
