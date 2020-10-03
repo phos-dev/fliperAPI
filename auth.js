@@ -42,10 +42,9 @@ module.exports = (db, app) => {
                         return db.select('*').from('users')
                             .where(check, '=', login)
                             .then(user => {
-
                                 done(null, user[0])
                             })
-                            .catch(err => done(null, false))
+                            .catch(err => done(null, false, {message: 'Login failed.'}))
                     }
                     throw new Error();
                 }
@@ -53,7 +52,7 @@ module.exports = (db, app) => {
             .catch(err => done(null, false, { message: 'Wrong Credentials.'}));
         }
     ));
-
+    
     passport.use(new GoogleStrategy({
         clientID:     CLIENT_ID,
         clientSecret: CLIENT_SECRET_KEY,
@@ -94,23 +93,28 @@ module.exports = (db, app) => {
             return done(null, profile);
         }
     ));
-
+    app.get('/auth/google/failed', (req, res) => {
+        res.status(401).json('Login failed.');
+    })
+    app.get('/auth/google/success', (req, res) => {
+        res.status(200).json('LOGIN_SUCCESS');
+    })
     app.get('/auth/google', passport.authenticate('google', { scope: 
         [ 'https://www.googleapis.com/auth/userinfo.profile',
         , 'https://www.googleapis.com/auth/userinfo.email' ] }
     ));
 
-    app.get('/auth/google/callback', passport.authenticate('google'),
-        function(req, res) {
-        res.status(200).json('LOGIN_SUCCESS');
-    });
+    app.get('/auth/google/callback', passport.authenticate('google', {
+        successRedirect: '/auth/google/success',
+        failureRedirect: '/auth/google/failed'
+    }));
 
     app.post('/login', (req, res, next ) => {
         passport.authenticate('local', (err, user, info) => {
             if (err) return next(err);
             if (!user) {
                 if(info.message === 'ERROR 23') {
-                    return res.redirect('http://localhost:3001/auth/google');
+                    return res.status(400).json('Error, login with your google account');
                 }
                 else {
                     return res.status(404).json(info.message);
@@ -125,11 +129,11 @@ module.exports = (db, app) => {
     app.post('/register', (req, res) => {
         const {name, username, email, password} = req.body;
 
-        isEmailReg(email).then(data => {
+        /*isEmailReg(email).then(data => {
             if(data.length == 0 && gmailRegex.test(String(email).toLowerCase())) {
                 res.redirect('http://localhost:3001/auth/google');
             }
-        });
+        });*/
 
         bcrypt.hash(password, 10, function(err, hash) {
             if(hash) {
@@ -150,7 +154,7 @@ module.exports = (db, app) => {
                                 joined: new Date()
                             })
                             .then(user => {
-                                res.status(200).json(user[0]);
+                                res.status(200).json('Registered');
                             })
                     })
                     .then(trx.commit)

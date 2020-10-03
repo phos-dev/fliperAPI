@@ -21,7 +21,11 @@ const db = require('knex')({
     }
   });
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000", 
+    methods: "GET,POST",
+    credentials: true 
+}));
 app.use(express.static("public"));
 app.use(session({ secret: 'ssshhh',
     resave: false,
@@ -58,9 +62,9 @@ const gameExists = (userId, name) => {
     return exists;
 }
 
-app.get('/:page/:gamesperpage', (req, res) => {
-    const {page, gamesperpage} = req.params;
-    db('games').select('*').limit(gamesperpage).offset(page - 1)
+app.get('/:page', (req, res) => {
+    const {page} = req.params;
+    db('games').select('*').limit(10).offset(page - 1)
     .then(data => {
         res.status(200).json(data);
     })
@@ -73,10 +77,9 @@ app.post('/search', (req, res) => {
     db.select('name').from('games')
         .where(db.raw(`search_vector @@ to_tsquery('${query}')`))
         .then(data => {
-            if(data.length == 0) throw new Error();
-            else res.status(200).json(data);
+            res.status(200).json(data);
         })
-        .catch(err => res.status(400).json("Ops... I didn't find anything."));
+        .catch(err => res.status(200).json([]));
 });
 
 
