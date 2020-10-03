@@ -67,24 +67,21 @@ app.get('/', (req, res) => {
 
 app.post('/search', (req, res) => {
     const {name} = req.body;
-    fetch("https://api-v3.igdb.com/games", 
-    {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'user-key': IGDB_API_KEY
-        },
-        body: 'fields name, involved_companies; search "'+ name +'"; limit 10;'
-    })
-    .then(response => response.json())
-    .then(data => res.status(200).json(data))
-    .catch(err => res.status(400).json('Ops... cannot search.'));
+    const query = name.replace(/['"]+/g, '').split(/[ ,]+/).join(' | ');
+
+    db.select('name').from('games')
+        .where(db.raw(`search_vector @@ to_tsquery('${query}')`))
+        .then(data => {
+            if(data.length == 0) throw new Error();
+            else res.status(200).json(data);
+        })
+        .catch(err => res.status(400).json("Ops... I didn't find anything."));
 });
 
 
 app.post('/add/game', (req, res) => {
     const {name, img, description} = req.body;
-    const {id} = req.session.passport.user;
+
     let image;
     imageToBase64(img) 
     .then(res => {
@@ -94,27 +91,33 @@ app.post('/add/game', (req, res) => {
         console.log('rear')
     })
     if(req.isAuthenticated()) {
-        const gE = gameExists(id, name);
-        gE.then(data => {
+        const usr = req.session.passport.user;
+        gameExists(usr.id, name).then(data => {
             if(data.length == 0) {
                 db.transaction(trx => {
                     trx.insert({
                         name: name, 
                         image: image,
                         description: description,
-                        created_by: id
+                        created_by: usr.id,
+                        created_by_name: usr.name
                     })
                     .into('games')
-                    .returning('name')
-                    .then(name => res.status(200).json(`Game '${name}' added`))
+                    .returning(['id', 'name'])
+                    .then(data => {
+                        res.status(200).json(`Game '${data[0].name}' added`);
+                    })
                     .then(trx.commit)
-                    .catch(trx.rollback);
+                    .catch(trx.rollback)
                 })
-                .catch(err => res.status(400).json('Unable to add.'));
+                .catch(err => res.status(400).json('Unable to add.'))
             }
             else {  
                 res.status(400).json(`You already have a game named '${name}'!`);
             }
+        })
+        .catch(err => {
+            res.status(400).json(`Ops... an error occurred`);
         })
     }
     else {
