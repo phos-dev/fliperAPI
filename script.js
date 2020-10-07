@@ -14,7 +14,9 @@ const db = require('knex')({
     client: 'pg',
     connection:  {
 		connectionString: process.env.DATABASE_URL,
-		ssl: true,
+		ssl: {
+			rejectUnauthorized: false
+		}
 	}
   });
 /*
@@ -59,7 +61,6 @@ const gameExists = (userId, name) => {
         });
     return exists;
 }
-
 app.get('/page/:page', (req, res) => {
     const {page} = req.params;
     db('games').select('*').limit(10).offset(page - 1)
