@@ -4,7 +4,7 @@
   "description": "fliper server",
   "main": "script.js",
   "scripts": {
-    "start": "nodemon script.js"
+    "start": "node script.js"
   },
   "author": "",
   "license": "ISC",
