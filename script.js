@@ -13,19 +13,18 @@ let sess;
 const db = require('knex')({
     client: 'pg',
     version: '7.2',
-    connection: {
-      host : '127.0.0.1',
-      user : 'postgres',
-      password : 'Mainyasuo4282',
-      database : 'postgres'
-    }
+    connection:  {
+		connectionString: process.env.DATABASE_URL,
+		ssl: true
+	}
   });
+/*
 
-app.use(cors({
     origin: "http://localhost:3000", 
     methods: "GET,POST",
     credentials: true 
-}));
+*/
+app.use(cors());
 app.use(express.static("public"));
 app.use(session({ secret: 'ssshhh',
     resave: false,
