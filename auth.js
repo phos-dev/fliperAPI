@@ -62,7 +62,7 @@ module.exports = (db, app) => {
 
             const {email, name} = profile;
 
-            db.select('email').from('users')
+            db.select('email', 'id', 'name').from('users')
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
@@ -88,16 +88,24 @@ module.exports = (db, app) => {
                         .catch(trx.rollback);
                     });
                 }
+                else return data[0];
             })
-            .catch(err => {});
-            return done(null, profile);
+            .catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
+            .then(data => {
+                const temp_user = {
+                    name: data.name,
+                    id: data.id,
+                    email: data.email
+                }
+                return done(null, temp_user);
+            })
         }
     ));
     app.get('/auth/google/failed', (req, res) => {
         res.status(401).json('Login failed.');
     })
     app.get('/auth/google/success', (req, res) => {
-        res.status(200).json('LOGIN_SUCCESS');
+        res.redirect('http://localhost:3000');
     })
     app.get('/auth/google', passport.authenticate('google', { scope: 
         [ 'https://www.googleapis.com/auth/userinfo.profile',

@@ -62,7 +62,7 @@ const gameExists = (userId, name) => {
     return exists;
 }
 
-app.get('/:page', (req, res) => {
+app.get('/page/:page', (req, res) => {
     const {page} = req.params;
     db('games').select('*').limit(10).offset(page - 1)
     .then(data => {
@@ -174,6 +174,15 @@ app.get('/profile/:id/games', (req, res) => {
     .catch(err => res.status(400));
 })
 
+app.get('/auth/google/check', (req, res) => {
+    console.log(req.session);
+    if(req.isAuthenticated()) {
+        res.status(200).json('LOGIN_SUCCESS');
+    }
+    else {
+        res.status(400).json('Login failed.');
+    }
+})
 app.get('/profile/:id', (req, res) => {
     const {id} = req.params;
     
