@@ -193,4 +193,4 @@ app.get('/profile/:id', (req, res) => {
         res.status(400).json('Not logged in.');
     }
 })
-app.listen(3001);
+app.listen(process.env.PORT || 3000);
