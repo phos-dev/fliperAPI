@@ -69,7 +69,7 @@ module.exports = (db, app) => {
                 console.log('entdsarou 0', data);
                 if(data.length == 0) {
                   console.log('entrou');
-                  async () => {
+                  const func = async () => {
                     try {
                       console.log('entrou 1');
                       const trxResult = await db.transaction(async (trx) => {
@@ -98,7 +98,7 @@ module.exports = (db, app) => {
                       console.log("transaction was rolled back");
                     }
                   }
-                    
+                  func();
                 }
                 else return data[0];
             })
