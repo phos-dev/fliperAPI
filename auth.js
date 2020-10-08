@@ -86,8 +86,7 @@ module.exports = (db, app) => {
                         .catch(trx.rollback);
                     })
                     .then(data => {
-                        console.log(data);
-                        return data;
+                        return data[0];
                     })
                 }
                 else return data[0];
