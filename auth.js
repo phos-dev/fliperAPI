@@ -11,7 +11,7 @@ module.exports = (db, app) => {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    const saveGoogleUser = (email, name, callback) => {
+    const saveGoogleUser = async (email, name) => {
         return db.transaction((trx) => {
           trx.insert({
               username : null,
@@ -32,9 +32,7 @@ module.exports = (db, app) => {
           .then(trx.commit)
           .catch(trx.rollback);
         })
-        .then(data => {
-          callback(data);
-        })
+        .then()
     }
     app.use(passport.initialize());
     app.use(passport.session());
@@ -89,15 +87,14 @@ module.exports = (db, app) => {
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
-                  return saveGoogleUser(email, name, (data) => {
-                    console.log('gygyu', data[0]);
-                    return data[0];
-                  })
+                  const response = await saveGoogleUser(email, name);
+                  console.log('r', response);
+                  return response[0];
                 }
                 else return data[0];
             })
             .then(data => {
-              console.log('d', data);
+              console.log('Data: ', data);
               const temp_user = {
                   name: data.name,
                   id: data.id,
