@@ -90,7 +90,7 @@ module.exports = (db, app) => {
             .then(data => {
                 if(data.length == 0) {
                   saveGoogleUser(email, name, (data) => {
-                    console.log(data);
+                    console.log('gygyu', data[0]);
                     return data[0];
                   })
                 }
