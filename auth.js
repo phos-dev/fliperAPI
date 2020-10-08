@@ -12,7 +12,7 @@ module.exports = (db, app) => {
         return re.test(String(email).toLowerCase());
     }
     const saveGoogleUser = async (email, name) => {
-        return db.transaction(trx => {
+        return (db.transaction(trx => {
             trx.insert({
                 username : null,
                 email: email,
@@ -31,11 +31,10 @@ module.exports = (db, app) => {
             })
             .then(trx.commit)
             .catch(trx.rollback);
-        })
-        .then(data => {
+        }).then(data => {
           console.log('dd', data);
           return data[0];
-        })
+        }))
     }
     app.use(passport.initialize());
     app.use(passport.session());
