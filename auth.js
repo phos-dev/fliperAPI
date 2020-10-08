@@ -32,7 +32,6 @@ module.exports = (db, app) => {
           .then(trx.commit)
           .catch(trx.rollback);
         })
-        .then()
     }
     app.use(passport.initialize());
     app.use(passport.session());
