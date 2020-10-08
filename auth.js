@@ -12,29 +12,7 @@ module.exports = (db, app) => {
         return re.test(String(email).toLowerCase());
     }
     const saveGoogleUser = async (email, name) => {
-        return (db.transaction(trx => {
-            trx.insert({
-                username : null,
-                email: email,
-                hash: null,
-                googleaccount: true
-            })
-            .into('login')
-            .returning('email')
-            .then(loginEmail => {
-                return trx('users').returning('*')
-                    .insert({
-                        name: name.givenName + ' ' + name.familyName,
-                        email: loginEmail[0],
-                        joined: new Date()
-                    })
-            })
-            .then(trx.commit)
-            .catch(trx.rollback);
-        }).then(data => {
-          console.log('dd', data);
-          return data[0];
-        }))
+        return 1;
     }
     app.use(passport.initialize());
     app.use(passport.session());
@@ -89,14 +67,35 @@ module.exports = (db, app) => {
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
-                    const getUsr = async () => {
-                        const usr = await saveGoogleUser()
-                        console.log('us', usr);
-                        usr.then(data => {
-                            console.log('in', data);
-                        })
+                  async () => {
+                    try {
+                      const trxResult = await db.transaction(async (trx) => {
+                        const queryResult = await trx.insert({
+                              username : null,
+                              email: email,
+                              hash: null,
+                              googleaccount: true
+                          })
+                          .into('login')
+                          .returning('email')
+                          .then(loginEmail => {
+                              return trx('users').returning('*')
+                                  .insert({
+                                      name: name.givenName + ' ' + name.familyName,
+                                      email: loginEmail[0],
+                                      joined: new Date()
+                                  })
+                          })
+                          .then(trx.commit)
+                          .catch(trx.rollback);
+                      })
+                        // do some more queries to trx
+                      console.log("transaction was committed", queryResult);
+                    } catch (e) {
+                      console.log("transaction was rolled back");
                     }
-                    getUsr();
+                  }
+                    
                 }
                 else return data[0];
             })
