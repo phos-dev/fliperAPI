@@ -12,7 +12,7 @@ module.exports = (db, app) => {
         return re.test(String(email).toLowerCase());
     }
     const saveGoogleUser = (email, name) => {
-        db.transaction(trx => {
+        return db.transaction(trx => {
             trx.insert({
                 username : null,
                 email: email,
