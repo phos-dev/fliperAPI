@@ -32,18 +32,15 @@ module.exports = (db, app) => {
             .where(check, '=', login)
             .then(data => {
                 const {hash, googleaccount} = data[0];
-				console.log('data', data, login);
                 if(googleaccount) {
                     done(null, false, { message: 'ERROR 23'});
                 }
                 else {
                     const match = bcrypt.compareSync(password, hash);
-					console.log('match', match);
                     if(match) {
                         return db.select('*').from('users')
                             .where(check, '=', login)
                             .then(user => {
-								console.log('usr', user);
                                 done(null, user[0])
                             })
                             .catch(err => done(null, false, {message: 'Login failed.'}))
@@ -54,13 +51,6 @@ module.exports = (db, app) => {
             .catch(err => done(null, false, { message: 'Wrong Credentials.'}));
         }
     ));
-    
-	app.get('/', (req, res) => {
-		db('users').select('*').where('id', '>', 0)
-		.then(data => {
-			res.status(200).json(data);
-		})
-	})
     passport.use(new GoogleStrategy({
         clientID:     CLIENT_ID,
         clientSecret: CLIENT_SECRET_KEY,
