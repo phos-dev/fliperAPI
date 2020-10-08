@@ -90,7 +90,7 @@ module.exports = (db, app) => {
             .then(data => {
                 if(data.length == 0) {
                     const getUsr = async () => {
-                        const usr = saveGoogleUser()
+                        const usr = await saveGoogleUser()
                         console.log('us', usr);
                         usr.then(data => {
                             console.log('in', data);
