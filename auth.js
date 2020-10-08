@@ -89,7 +89,7 @@ module.exports = (db, app) => {
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
-                  saveGoogleUser(email, name, (data) => {
+                  return saveGoogleUser(email, name, (data) => {
                     console.log('gygyu', data[0]);
                     return data[0];
                   })
