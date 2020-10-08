@@ -66,9 +66,9 @@ module.exports = (db, app) => {
                 if(data.length == 0) {
                     db.transaction(trx => {
                         trx.insert({
-                            username : 'none',
+                            username : null',
                             email: email,
-                            hash: 'none',
+                            hash: null,
                             googleaccount: true
                         })
                         .into('login')
