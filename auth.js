@@ -84,7 +84,10 @@ module.exports = (db, app) => {
                         })
                         .then(trx.commit)
                         .catch(trx.rollback);
-                    });
+                    })
+                    .then(data => {
+                        return data;
+                    })
                 }
                 else return data[0];
             })
