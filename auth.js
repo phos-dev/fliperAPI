@@ -11,7 +11,7 @@ module.exports = (db, app) => {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    const saveGoogleUser = async (email, name) => {
+    const saveGoogleUser = (email, name) => {
         db.transaction(trx => {
             trx.insert({
                 username : null,
@@ -86,8 +86,11 @@ module.exports = (db, app) => {
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
-                    const usr = await saveGoogleUser()
-                    console.log('us', usr);
+                    const getUsr = async() => {
+                        const usr = await saveGoogleUser()
+                        console.log('us', usr);
+                    }
+                    getUsr();
                 }
                 else return data[0];
             })
