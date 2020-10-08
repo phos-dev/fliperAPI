@@ -11,7 +11,29 @@ module.exports = (db, app) => {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-
+    const saveGoogleUser = (email, name) => {
+        db.transaction(trx => {
+            trx.insert({
+                username : null,
+                email: email,
+                hash: null,
+                googleaccount: true
+            })
+            .into('login')
+            .returning('email')
+            .then(loginEmail => {
+                return trx('users').returning('*')
+                    .insert({
+                        name: name.givenName + ' ' + name.familyName,
+                        email: loginEmail[0],
+                        joined: new Date()
+                    })
+            })
+            .then(trx.commit)
+            .catch(trx.rollback);
+        })
+        .then(data => data[0])
+    }
     app.use(passport.initialize());
     app.use(passport.session());
 
@@ -64,37 +86,14 @@ module.exports = (db, app) => {
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
-                    db.transaction(trx => {
-                        trx.insert({
-                            username : null,
-                            email: email,
-                            hash: null,
-                            googleaccount: true
-                        })
-                        .into('login')
-                        .returning('email')
-                        .then(loginEmail => {
-                            return trx('users')
-                                .returning('*')
-                                .insert({
-                                    name: name.givenName + ' ' + name.familyName,
-                                    email: loginEmail[0],
-                                    joined: new Date()
-                                })
-                        })
-                        .then(trx.commit)
-                        .catch(trx.rollback);
-                    })
-                    .then(data => {
-                        console.log(data[0]);
-                        return data[0];
-                    })
+                    const usr = await saveGoogleUser()
+                    console.log('us', usr);
                 }
                 else return data[0];
             })
             .catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
             .then(data => {
-                console.log(data);
+                console.log('d', data);
                 const temp_user = {
                     name: data.name,
                     id: data.id,
