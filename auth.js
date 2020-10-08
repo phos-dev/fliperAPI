@@ -66,9 +66,12 @@ module.exports = (db, app) => {
             db.select('email', 'id', 'name').from('users')
             .where('email', '=', email)
             .then(data => {
+                console.log('entdsarou 0', data);
                 if(data.length == 0) {
+                  console.log('entrou');
                   async () => {
                     try {
+                      console.log('entrou 1');
                       const trxResult = await db.transaction(async (trx) => {
                         const queryResult = await trx.insert({
                               username : null,
