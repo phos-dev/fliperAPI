@@ -53,6 +53,12 @@ module.exports = (db, app) => {
         }
     ));
     
+	app.get('/', (req, res) => {
+		db('users').select('*').where('id', '>', 0)
+		.then(data => {
+			res.status(200).json(data);
+		})
+	})
     passport.use(new GoogleStrategy({
         clientID:     CLIENT_ID,
         clientSecret: CLIENT_SECRET_KEY,
