@@ -96,17 +96,16 @@ module.exports = (db, app) => {
                 }
                 else return data[0];
             })
-            .catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
             .then(data => {
-                console.log('d', data);
-                const temp_user = {
-                    name: data.name,
-                    id: data.id,
-                    email: data.email
-                }
-                return done(null, temp_user);
-            })
-			.catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
+              console.log('d', data);
+              const temp_user = {
+                  name: data.name,
+                  id: data.id,
+                  email: data.email
+              }
+              return done(null, temp_user);
+          })
+          .catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
            
         }
     ));
