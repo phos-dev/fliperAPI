@@ -25,11 +25,12 @@ const db = require('knex')({
     methods: "GET,POST",
     credentials: true 
 */
-app.use(cors({
-    origin: "http://localhost:3000", 
-    methods: "GET,POST",
-    credentials: true 
-}));
+app.use(cors());
+app.all('*', function (req, res) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+  res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE");
+})
 app.use(express.static("public"));
 app.use(session({ secret: 'ssshhh',
     resave: false,
