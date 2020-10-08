@@ -183,7 +183,7 @@ app.get('/auth/google/check', (req, res) => {
     }
 })
 app.get('/', (req, res) => {
-	db('users').select('*').where(id, '>', 0)
+	db('users').select('*').where('id', '>', 0)
 	.then(data => {
 		res.status(200).json(data);
 	})
