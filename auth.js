@@ -86,11 +86,10 @@ module.exports = (db, app) => {
             db.select('email', 'id', 'name').from('users')
             .where('email', '=', email)
             .then(data => {
-                returnUser = (data) => data[0];
                 if(data.length == 0) {
-                  return saveGoogleUser(email, name, returnUser);
+                  return saveGoogleUser(email, name, (data) => data[0]);
                 }
-                else return returnUser(data);
+                else return data[0];
             })
             .then(data => {
               console.log('Data: ', data);
