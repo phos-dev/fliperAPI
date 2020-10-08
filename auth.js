@@ -28,10 +28,10 @@ module.exports = (db, app) => {
         (login, password, done) => {
             const check = validateEmail(login) ? 'email' : 'username';
             
-            db.select(check, 'hash', 'googleaccount').from('login')
+            db.select('*').from('login')
             .where(check, '=', login)
             .then(data => {
-                const {hash, googleaccount} = data[0];
+                const {hash, googleaccount, email} = data[0];
                 if(googleaccount) {
                     done(null, false, { message: 'ERROR 23'});
                 }
@@ -39,7 +39,7 @@ module.exports = (db, app) => {
                     const match = bcrypt.compareSync(password, hash);
                     if(match) {
                         return db.select('*').from('users')
-                            .where(check, '=', login)
+                            .where('email', '=', email)
                             .then(user => {
                                 done(null, user[0])
                             })
@@ -157,7 +157,6 @@ module.exports = (db, app) => {
                             .insert({
                                 name: name,
                                 email: loginEmail[0],
-								username: username,
                                 joined: new Date()
                             })
                             .then(user => {
