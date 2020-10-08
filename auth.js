@@ -11,8 +11,30 @@ module.exports = (db, app) => {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    const saveGoogleUser = async (email, name) => {
-        return 1;
+    const saveGoogleUser = (email, name, callback) => {
+        return db.transaction((trx) => {
+          trx.insert({
+              username : null,
+              email: email,
+              hash: null,
+              googleaccount: true
+          })
+          .into('login')
+          .returning('email')
+          .then(loginEmail => {
+            return trx('users').returning('*')
+              .insert({
+                  name: name.givenName + ' ' + name.familyName,
+                  email: loginEmail[0],
+                  joined: new Date()
+              })
+          })
+          .then(trx.commit)
+          .catch(trx.rollback);
+        })
+        .then(data => {
+          callback(data);
+        })
     }
     app.use(passport.initialize());
     app.use(passport.session());
@@ -66,39 +88,11 @@ module.exports = (db, app) => {
             db.select('email', 'id', 'name').from('users')
             .where('email', '=', email)
             .then(data => {
-                console.log('entdsarou 0', data);
                 if(data.length == 0) {
-                  console.log('entrou');
-                  const func = async () => {
-                    try {
-                      console.log('entrou 1');
-                      const trxResult = await db.transaction(async (trx) => {
-                        const queryResult = await trx.insert({
-                              username : null,
-                              email: email,
-                              hash: null,
-                              googleaccount: true
-                          })
-                          .into('login')
-                          .returning('email')
-                          .then(loginEmail => {
-                              return trx('users').returning('*')
-                                  .insert({
-                                      name: name.givenName + ' ' + name.familyName,
-                                      email: loginEmail[0],
-                                      joined: new Date()
-                                  })
-                          })
-                          .then(trx.commit)
-                          .catch(trx.rollback);
-                      })
-                        // do some more queries to trx
-                      console.log("transaction was committed", queryResult);
-                    } catch (e) {
-                      console.log("transaction was rolled back");
-                    }
-                  }
-                  func();
+                  saveGoogleUser(email, name, (data) => {
+                    console.log(data);
+                    return data[0];
+                  })
                 }
                 else return data[0];
             })
