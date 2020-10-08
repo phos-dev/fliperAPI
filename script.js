@@ -25,7 +25,11 @@ const db = require('knex')({
     methods: "GET,POST",
     credentials: true 
 */
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000", 
+    methods: "GET,POST",
+    credentials: true 
+}));
 app.use(express.static("public"));
 app.use(session({ secret: 'ssshhh',
     resave: false,

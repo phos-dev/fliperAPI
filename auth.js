@@ -92,7 +92,6 @@ module.exports = (db, app) => {
                 else return data[0];
             })
             .then(data => {
-              console.log('Data: ', data);
               const temp_user = {
                   name: data.name,
                   id: data.id,
