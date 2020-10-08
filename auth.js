@@ -74,6 +74,7 @@ module.exports = (db, app) => {
                         .into('login')
                         .returning('email')
                         .then(loginEmail => {
+							console.log('us', name);
                             return trx('users')
                                 .returning('*')
                                 .insert({
@@ -90,6 +91,7 @@ module.exports = (db, app) => {
             })
             .catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
             .then(data => {
+				console.log('data', data);
                 const temp_user = {
                     name: data.name,
                     id: data.id,
