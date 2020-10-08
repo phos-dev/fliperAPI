@@ -88,8 +88,7 @@ module.exports = (db, app) => {
             .then(data => {
                 returnUser = (data) => data[0];
                 if(data.length == 0) {
-                  saveGoogleUser(email, name, returnUser);
-                  return returnUser;
+                  return saveGoogleUser(email, name, returnUser);
                 }
                 else return returnUser(data);
             })
