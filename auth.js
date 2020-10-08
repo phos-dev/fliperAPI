@@ -43,6 +43,7 @@ module.exports = (db, app) => {
                         return db.select('*').from('users')
                             .where(check, '=', login)
                             .then(user => {
+								console.log('usr', user);
                                 done(null, user[0])
                             })
                             .catch(err => done(null, false, {message: 'Login failed.'}))
