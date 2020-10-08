@@ -152,12 +152,12 @@ module.exports = (db, app) => {
                     .into('login')
                     .returning('email')
                     .then(loginEmail => {
-						console.log(loginEmail);
                         return trx('users')
                             .returning('*')
                             .insert({
                                 name: name,
                                 email: loginEmail[0],
+								username: username,
                                 joined: new Date()
                             })
                             .then(user => {
