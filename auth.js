@@ -74,7 +74,6 @@ module.exports = (db, app) => {
                         .into('login')
                         .returning('email')
                         .then(loginEmail => {
-							console.log(loginEmail);
                             return trx('users')
                                 .returning('*')
                                 .insert({
@@ -91,7 +90,6 @@ module.exports = (db, app) => {
             })
             .catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
             .then(data => {
-				console.log(data);
                 const temp_user = {
                     name: data.name,
                     id: data.id,
@@ -99,6 +97,8 @@ module.exports = (db, app) => {
                 }
                 return done(null, temp_user);
             })
+			.catch(err => done(null, null, {message: 'Ops... an error occurred.'}))
+           
         }
     ));
     app.get('/auth/google/failed', (req, res) => {
