@@ -56,7 +56,7 @@ module.exports = (db, app) => {
     passport.use(new GoogleStrategy({
         clientID:     CLIENT_ID,
         clientSecret: CLIENT_SECRET_KEY,
-        callbackURL: "http://localhost:3001/auth/google/callback"
+        callbackURL: "https://fliperio.herokuapp.com/auth/google/callback"
     },
         (accessToken, refreshToken, profile, done) => { 
 
