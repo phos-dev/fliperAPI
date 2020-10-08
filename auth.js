@@ -11,7 +11,7 @@ module.exports = (db, app) => {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    const saveGoogleUser = async (email, name) => {
+    const saveGoogleUser = (email, name, callback) => {
         return db.transaction((trx) => {
           trx.insert({
               username : null,
@@ -32,6 +32,7 @@ module.exports = (db, app) => {
           .then(trx.commit)
           .catch(trx.rollback);
         })
+        .then(data => callback(data))
     }
     app.use(passport.initialize());
     app.use(passport.session());
@@ -86,9 +87,14 @@ module.exports = (db, app) => {
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
-                  const response = await saveGoogleUser(email, name);
-                  console.log('r', response);
-                  return response[0];
+                  let a;
+                  saveGoogleUser(email, name, (data) => {
+                    a = data[0];
+                    console.log('Data: ', data[0]);
+                    //return data[0];
+                  });
+                  console.log('A: ', a);
+                  return a;
                 }
                 else return data[0];
             })
