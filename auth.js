@@ -33,7 +33,7 @@ module.exports = (db, app) => {
             .catch(trx.rollback);
         })
         .then(data => {
-          console.log(data);
+          console.log('dd', data);
           return data[0];
         })
     }
