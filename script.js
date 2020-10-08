@@ -182,6 +182,12 @@ app.get('/auth/google/check', (req, res) => {
         res.status(400).json('Login failed.');
     }
 })
+app.get('/', (req, res) => {
+	db('users').select('*').where(id, '>', 0)
+	.then(data => {
+		res.status(200).json(data);
+	})
+})
 app.get('/profile/:id', (req, res) => {
     const {id} = req.params;
     
