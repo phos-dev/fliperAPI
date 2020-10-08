@@ -11,7 +11,7 @@ module.exports = (db, app) => {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    const saveGoogleUser = (email, name) => {
+    const saveGoogleUser = async (email, name) => {
         return db.transaction(trx => {
             trx.insert({
                 username : null,
@@ -32,7 +32,10 @@ module.exports = (db, app) => {
             .then(trx.commit)
             .catch(trx.rollback);
         })
-        .then(data => data[0])
+        .then(data => {
+          console.log(data);
+          return data[0];
+        })
     }
     app.use(passport.initialize());
     app.use(passport.session());
@@ -73,6 +76,7 @@ module.exports = (db, app) => {
             .catch(err => done(null, false, { message: 'Wrong Credentials.'}));
         }
     ));
+     
     passport.use(new GoogleStrategy({
         clientID:     CLIENT_ID,
         clientSecret: CLIENT_SECRET_KEY,
@@ -86,7 +90,7 @@ module.exports = (db, app) => {
             .where('email', '=', email)
             .then(data => {
                 if(data.length == 0) {
-                    const getUsr = async() => {
+                    const getUsr = async () => {
                         const usr = saveGoogleUser()
                         console.log('us', usr);
                         usr.then(data => {
