@@ -180,7 +180,7 @@ app.get('/profile/:id/games', (req, res) => {
 })
 
 app.get('/auth/google/check', (req, res) => {
-    console.log(req);
+    console.log(req.isAuthenticated(), 'sda');
     if(req.isAuthenticated()) {
         res.status(200).json('LOGIN_SUCCESS');
     }
