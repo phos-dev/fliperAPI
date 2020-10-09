@@ -88,15 +88,15 @@ app.post('/search', (req, res) => {
 
 app.post('/add/game', (req, res) => {
     const {name, img, description} = req.body;
-
-    let image;
+    let image = img;
+   /* let image;
     imageToBase64(img) 
     .then(res => {
         image = res;
     })
     .catch(err => {
         console.log('rear')
-    })
+    })*/
     if(req.isAuthenticated()) {
         const usr = req.session.passport.user;
         gameExists(usr.id, name).then(data => {
