@@ -4,7 +4,8 @@
   "description": "fliper server",
   "main": "script.js",
   "scripts": {
-    "start": "node script.js"
+    "start": "node script.js",
+    "deploy": "git add . && git commit -m\"$npm_config_m\" && git push master && git push heroku master"
   },
   "author": "",
   "license": "ISC",
