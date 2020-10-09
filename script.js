@@ -26,7 +26,7 @@ const db = require('knex')({
     credentials: true 
 */
 app.use(cors({
-  origin: "http://localhost:3000", 
+  origin: ["http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000/", "http://127.0.0.1:3000"], 
   methods: "GET,POST",
   credentials: true 
 }));
@@ -180,12 +180,12 @@ app.get('/profile/:id/games', (req, res) => {
 })
 
 app.get('/auth/google/check', (req, res) => {
-    console.log(req.isAuthenticated(), 'sda');
+    
     if(req.isAuthenticated()) {
         res.status(200).json('LOGIN_SUCCESS');
     }
     else {
-        res.status(400).json('Login failed.');
+        res.status(200).json('Login failed.');
     }
 })
 app.get('/profile/:id', (req, res) => {
