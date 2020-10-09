@@ -36,7 +36,7 @@ app.use(session({ secret: 'ssshhh',
     saveUninitialized: true,
     cookie: {
         secure: true,
-        sameSite: 'None'
+        sameSite: 'none'
     }
 }));
 app.use(bodyParser.json());
