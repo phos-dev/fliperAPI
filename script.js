@@ -26,7 +26,7 @@ const db = require('knex')({
     credentials: true 
 */
 app.use(cors({
-  origin: "https://fliperio.herokuapp.com", 
+  origin: "https://fliperio.herokuapp.com/fliper", 
   methods: "GET,POST",
   credentials: true 
 }));

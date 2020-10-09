@@ -107,7 +107,7 @@ module.exports = (db, app) => {
         res.status(401).json('Login failed.');
     })
     app.get('/auth/google/success', (req, res) => {
-        res.redirect('http://localhost:3000');
+        res.redirect('http://phos-dev.github.io/fliper');
     })
     app.get('/auth/google', passport.authenticate('google', { scope: 
         [ 'https://www.googleapis.com/auth/userinfo.profile',
