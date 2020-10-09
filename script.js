@@ -185,7 +185,7 @@ app.get('/auth/google/check', (req, res) => {
         res.status(200).json('LOGIN_SUCCESS');
     }
     else {
-        res.status(200).json('Login failed.');
+        res.status(400).json('Login failed.');
     }
 })
 app.get('/profile/:id', (req, res) => {
