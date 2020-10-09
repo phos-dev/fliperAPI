@@ -99,8 +99,10 @@ app.post('/add/game', (req, res) => {
     })*/
     if(req.isAuthenticated()) {
         const usr = req.session.passport.user;
+        console.log('usr', usr);
         gameExists(usr.id, name).then(data => {
             if(data.length == 0) {
+                console.log('A', data);
                 db.transaction(trx => {
                     trx.insert({
                         name: name, 
