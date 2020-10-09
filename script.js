@@ -178,11 +178,12 @@ app.get('/profile/:id/games', (req, res) => {
 })
 
 app.get('/auth/google/check', (req, res) => {
+    console.log(req);
     if(req.isAuthenticated()) {
         res.status(200).json('LOGIN_SUCCESS');
     }
     else {
-        res.status(409).json('Login failed.');
+        res.status(400).json('Login failed.');
     }
 })
 app.get('/profile/:id', (req, res) => {
