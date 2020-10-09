@@ -33,7 +33,12 @@ app.use(cors({
 app.use(express.static("public"));
 app.use(session({ secret: 'ssshhh',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        path: "/",
+        secure: true,
+        httpOnly: true
+    }
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
