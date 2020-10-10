@@ -46,7 +46,8 @@ app.use(session({ secret: 'ssshhh',
     saveUninitialized: true,
     cookie: {
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+		httpOnly: true
     }
 }));
 app.use(bodyParser.json());
@@ -194,7 +195,6 @@ app.get('/profile/:id/games', (req, res) => {
 })
 
 app.get('/auth/google/check', (req, res) => {
-    
     if(req.isAuthenticated()) {
         res.status(200).json('LOGIN_SUCCESS');
     }
