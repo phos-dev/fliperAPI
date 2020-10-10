@@ -28,6 +28,7 @@ app.use(cors({
     origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"],
     methods: "GET,POST,OPTIONS,PUT",
     credentials: true,
+	optionsSuccessStatus: 200,
     allowedHeaders: [ "Origin", "X-Requested-With", "Content-Type", "Accept"]
 }));
 /*{
@@ -45,8 +46,7 @@ app.use(session({ secret: 'ssshhh',
     saveUninitialized: true,
     cookie: {
         secure: true,
-        sameSite: 'none',
-        httpOnly: false
+        sameSite: 'none'
     }
 }));
 app.use(bodyParser.json());
