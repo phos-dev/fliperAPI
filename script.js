@@ -186,8 +186,8 @@ app.get('/profile/:id/games', (req, res) => {
 })
 
 app.get('/auth/google/check', (req, res) => {
-	console.log(req.session.passport);
-    if(req.isAuthenticated()) {
+	console.log(req.session.passport, req.method);
+    if(req.isAuthenticated() || req.method === 'OPTIONS') {
         res.status(200).json('LOGIN_SUCCESS');
     }
     else {
