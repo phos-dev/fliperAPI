@@ -19,12 +19,6 @@ const db = require('knex')({
 		}
 	}
   });
-/*
-
-    origin: "http://localhost:3000", 
-    methods: "GET,POST",
-    credentials: true 
-*/
 app.use(cors({
   origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"], 
   methods: "GET,POST",
@@ -36,7 +30,8 @@ app.use(session({ secret: 'ssshhh',
     saveUninitialized: true,
     cookie: {
         secure: true,
-        sameSite: 'none'
+        sameSite: 'none',
+        httpOnly: false
     }
 }));
 app.use(bodyParser.json());
