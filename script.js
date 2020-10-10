@@ -26,7 +26,8 @@ const db = require('knex')({
 }*/
 app.use(cors({
     origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"],
-    methods: "GET,POST,OPTIONS,PUT",
+    methods: ['GET', 'PUT', 'POST', 'OPTIONS'],
+	allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
 	optionsSuccessStatus: 200
 }));
@@ -187,7 +188,8 @@ app.get('/profile/:id/games', (req, res) => {
 
 app.get('/auth/google/check', (req, res) => {
 	console.log(req.session.passport, req.method);
-    if(req.isAuthenticated() || req.method === 'OPTIONS') {
+	
+    if(req.isAuthenticated()) {
         res.status(200).json('LOGIN_SUCCESS');
     }
     else {
