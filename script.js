@@ -21,7 +21,7 @@ const db = require('knex')({
   });
 app.use(cors({
   origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"], 
-  methods: "GET,POST",
+  methods: "GET,POST,OPTIONS",
   credentials: true 
 }));
 app.use(express.static("public"));
