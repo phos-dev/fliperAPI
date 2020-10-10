@@ -196,10 +196,10 @@ app.get('/profile/:id/games', (req, res) => {
 app.get('/auth/google/check', (req, res) => {
     
     if(req.isAuthenticated()) {
-        res.json('LOGIN_SUCCESS');
+        res.status(200).json('LOGIN_SUCCESS');
     }
     else {
-        res.json('Login failed.');
+        res.status(400).json('Login failed.');
     }
 })
 app.get('/profile/:id', (req, res) => {
