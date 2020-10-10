@@ -25,14 +25,20 @@ const db = require('knex')({
   credentials: true 
 }*/
 app.use(cors({
-    origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"]
+    origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"],
+    methods: "GET,POST,OPTIONS,PUT",
+    credentials: true,
+    allowedHeaders: [ "Origin", "X-Requested-With", "Content-Type", "Accept"]
 }));
-app.use(function(req, res, next) {
+/*{
+  app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Methods', 'OPTIONS, PUT, GET, POST');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.setHeader('Access-Control-Allow-Credentials', true);
     next();
 });
+}*/
+
 app.use(express.static("public"));
 app.use(session({ secret: 'ssshhh',
     resave: false,
