@@ -77,7 +77,7 @@ module.exports = (db, app) => {
     passport.use(new GoogleStrategy({
         clientID:     CLIENT_ID,
         clientSecret: CLIENT_SECRET_KEY,
-        callbackURL: `${HOME_URL}auth/google/callback`
+        callbackURL: `https://fliperapi.herokuapp.com/auth/google/callback`
     },
         (accessToken, refreshToken, profile, done) => { 
 
