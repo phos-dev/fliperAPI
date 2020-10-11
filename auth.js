@@ -3,7 +3,7 @@ const CLIENT_SECRET_KEY = "vLALNGuMYgpOOkB2EkTvbQep";
 const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
-const HOME_URL = process.env.NODE_ENV === "production" ? 'https://fliperapi.herokuapp.com/' : 'http://localhost:3000/';
+const HOME_URL = process.env.NODE_ENV === "production" ? 'https://fliperio.herokuapp.com/' : 'http://localhost:3000/';
 
 module.exports = (db, app) => {
     
