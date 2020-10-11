@@ -9,7 +9,15 @@ const imageToBase64 = require('image-to-base64');
 const passport = require('passport');
 const auth = require('./auth');
 let sess;
-
+const whiteList = () => {
+    if(process.env.NODE_ENV === "production"){
+        return ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"];
+    }
+    else {
+        return ["http://localhost:3000"];
+    }
+}
+console.log(whiteList());
 const db = require('knex')({
     client: 'pg',
     connection:  {
@@ -25,7 +33,7 @@ const db = require('knex')({
   credentials: true 
 }*/
 app.use(cors({
-    origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"],
+    origin: whiteList(),
     methods: ['GET', 'PUT', 'POST', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
@@ -106,10 +114,8 @@ app.post('/add/game', (req, res) => {
     })*/
     if(req.isAuthenticated()) {
         const usr = req.session.passport.user;
-        console.log('usr', usr);
         gameExists(usr.id, name).then(data => {
             if(data.length == 0) {
-                console.log('A', data);
                 db.transaction(trx => {
                     trx.insert({
                         name: name, 
@@ -206,4 +212,4 @@ app.get('/profile/:id', (req, res) => {
         res.status(400).json('Not logged in.');
     }
 })
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 3001);

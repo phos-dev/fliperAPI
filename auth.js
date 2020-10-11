@@ -3,7 +3,7 @@ const CLIENT_SECRET_KEY = "vLALNGuMYgpOOkB2EkTvbQep";
 const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
-
+const HOME_URL = process.env.NODE_ENV === "production" ? 'https://phos-dev.github.io/fliper/#/' : 'http://localhost:3000/';
 
 module.exports = (db, app) => {
     
@@ -77,7 +77,7 @@ module.exports = (db, app) => {
     passport.use(new GoogleStrategy({
         clientID:     CLIENT_ID,
         clientSecret: CLIENT_SECRET_KEY,
-        callbackURL: "https://fliperio.herokuapp.com/auth/google/callback"
+        callbackURL: `${HOME_URL}auth/google/callback`
     },
         (accessToken, refreshToken, profile, done) => { 
 
@@ -107,7 +107,7 @@ module.exports = (db, app) => {
         res.status(401).json('Login failed.');
     })
     app.get('/auth/google/success', (req, res) => {
-        res.redirect('https://phos-dev.github.io/fliper/#/');
+        res.redirect(HOME_URL);
     })
     app.get('/auth/google', passport.authenticate('google', { scope: 
         [ 'https://www.googleapis.com/auth/userinfo.profile',
