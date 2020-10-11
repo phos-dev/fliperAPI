@@ -11,7 +11,7 @@ const auth = require('./auth');
 let sess;
 const whiteList = () => {
     if(process.env.NODE_ENV === "production"){
-        return ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"];
+        return ["https://fliperio.herokuapp.com/", "https://fliperio.herokuapp.com/#/"];
     }
     else {
         return ["http://localhost:3000"];
