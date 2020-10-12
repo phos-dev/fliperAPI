@@ -1,5 +1,5 @@
 const express = require('express');
-const session = require('cookie-session');
+const session = require('express-session');
 const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser');
@@ -17,7 +17,6 @@ const whiteList = () => {
         return ["http://localhost:3000"];
     }
 }
-console.log(whiteList());
 const db = require('knex')({
     client: 'pg',
     connection:  {
