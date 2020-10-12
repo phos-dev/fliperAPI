@@ -221,8 +221,6 @@ app.get('/auth/google/check', (req, res) => {
             next();
         });
     }
-}
-   
 })
 app.get('/profile/:id', (req, res) => {
     const {id} = req.params;
