@@ -47,7 +47,7 @@ app.use(session({ secret: 'ssshhh',
     saveUninitialized: true,
     proxy: true,
     cookie: {
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        secure: true,
         sameSite: 'none',
 		httpOnly: true
     }
