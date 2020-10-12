@@ -111,7 +111,8 @@ module.exports = (db, app) => {
     })
     app.get('/auth/google', passport.authenticate('google', { scope: 
         [ 'https://www.googleapis.com/auth/userinfo.profile',
-        , 'https://www.googleapis.com/auth/userinfo.email' ] }
+        , 'https://www.googleapis.com/auth/userinfo.email' ],
+        prompt="select_account"}
     ));
 
     app.get('/auth/google/callback', passport.authenticate('google', {
