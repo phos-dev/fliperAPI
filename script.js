@@ -8,6 +8,8 @@ const IGDB_API_KEY = 'd0205a3f20063d4b4779d67d81a09875';
 const imageToBase64 = require('image-to-base64');
 const passport = require('passport');
 const auth = require('./auth');
+require("dotenv-safe").config();
+const jwt = require('jsonwebtoken');
 let sess;
 const whiteList = () => {
     if(process.env.NODE_ENV === "production"){
@@ -34,7 +36,7 @@ const db = require('knex')({
 app.use(cors({
     origin: whiteList(),
     methods: ['GET', 'PUT', 'POST', 'OPTIONS'],
-	allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+	allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-access-token'],
     credentials: true,
 	optionsSuccessStatus: 200
 }));
@@ -201,13 +203,25 @@ app.get('/profile/:id/games', (req, res) => {
 
 app.get('/auth/google/check', (req, res) => {
 	console.log(req.session.passport, req.method);
-	
-    if(req.isAuthenticated()) {
+    const verifyJWT = (req, res, next) => {
+    const token = req.headers['x-access-token'];
+    if (!token) return res.status(401).json({ auth: false, message: 'No token provided.' });
+    
+    jwt.verify(token, 'process.env.SECRET', function(err, decoded) {
+      if (err) return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+      
+      /* se tudo estiver ok, salva no request para uso posterior if(req.isAuthenticated()) {
         res.status(200).json('LOGIN_SUCCESS');
     }
     else {
         res.status(400).json('Login failed.');
-    }
+    }*/
+      req.userId = decoded.id;
+      res.status(200).json('LOGIN_SUCCESS');
+      next();
+    });
+}
+   
 })
 app.get('/profile/:id', (req, res) => {
     const {id} = req.params;

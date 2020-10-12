@@ -107,6 +107,9 @@ module.exports = (db, app) => {
         res.status(401).json('Login failed.');
     })
     app.get('/auth/google/success', (req, res) => {
+        const {id} = req.session.passport.user;
+        const token = jwt.sign({id}, 'process.env.SECRET', {expiresIn: 300});
+        res.json({ auth: true, token: token });
         res.redirect(HOME_URL);
     })
     app.get('/auth/google', passport.authenticate('google', { scope: 
