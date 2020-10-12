@@ -34,7 +34,6 @@ const db = require('knex')({
 }*/
 app.use(cors({
     origin: whiteList(),
-    store: new (require('connect-pg-simple')(session))(),
     methods: ['GET', 'PUT', 'POST', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     credentials: true,
@@ -45,6 +44,7 @@ app.use(express.static("public"));
 app.set('trust proxy', 1);
 app.use(session({ secret: 'ssshhh',
     resave: false,
+    store: new (require('connect-pg-simple')(session))(),
     saveUninitialized: true,
     proxy: true,
     cookie: {
