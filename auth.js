@@ -105,6 +105,7 @@ module.exports = (db, app) => {
     ));
     app.get('/auth/google/failed', (req, res) => {
         res.status(401).json('Login failed.');
+        res.redirect(HOME_URL);
     })
     app.get('/auth/google/success', (req, res) => {
         const {id} = req.session.passport.user;
@@ -119,6 +120,7 @@ module.exports = (db, app) => {
     ));
 
     app.get('/auth/google/callback', passport.authenticate('google', {
+        session: false,
         successRedirect: '/auth/google/success',
         failureRedirect: '/auth/google/failed'
     }));

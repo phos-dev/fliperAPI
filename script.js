@@ -208,7 +208,7 @@ app.get('/auth/google/check', (req, res) => {
         if (!token) return res.status(401).json({ auth: false, message: 'No token provided.' });
         
         jwt.verify(token, 'process.env.SECRET', function(err, decoded) {
-            if (err) return res.status(500).json({ auth: false, message: 'Failed to authenticate token.' });
+            if (err) return res.status(500).json('LOGIN_FAILED');
             
             /* se tudo estiver ok, salva no request para uso posterior if(req.isAuthenticated()) {
                 res.status(200).json('LOGIN_SUCCESS');
@@ -221,6 +221,7 @@ app.get('/auth/google/check', (req, res) => {
             next();
         });
     }
+    verifyJWT();
 })
 app.get('/profile/:id', (req, res) => {
     const {id} = req.params;
