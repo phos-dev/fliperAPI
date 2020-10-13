@@ -8,7 +8,7 @@ const IGDB_API_KEY = 'd0205a3f20063d4b4779d67d81a09875';
 const imageToBase64 = require('image-to-base64');
 const passport = require('passport');
 const auth = require('./auth');
-require("dotenv-safe").config();
+//require("dotenv-safe").config();
 const jwt = require('jsonwebtoken');
 let sess;
 const whiteList = () => {
