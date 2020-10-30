@@ -29,6 +29,7 @@ const db = require('knex')({
 	}
   });
   /*{
+	  k
   origin: ["https://phos-dev.github.io", "https://phos-dev.github.io/fliper/#/"], 
   methods: "GET, POST, OPTIONS",
   credentials: true 
