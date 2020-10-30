@@ -1,5 +1,5 @@
-const CLIENT_ID = "721463989337-95k6qc6jl7852v5monbv2rkcr7qur704.apps.googleusercontent.com";
-const CLIENT_SECRET_KEY = "vLALNGuMYgpOOkB2EkTvbQep";
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET_KEY = process.env.CLIENT_SECRET_KEY;
 const GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 const passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
